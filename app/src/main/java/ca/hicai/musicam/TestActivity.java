@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import me.yvesli.testbed.R;
+import ca.hicai.musicam.R;
 
 
 public class TestActivity extends ActionBarActivity {
