@@ -7,14 +7,11 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 
 
 public class SoundPlayerActivity extends ActionBarActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,9 +19,9 @@ public class SoundPlayerActivity extends ActionBarActivity {
 
         RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar);
         LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
-        stars.getDrawable(0).setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_ATOP);
-        stars.getDrawable(1).setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
-        stars.getDrawable(2).setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_ATOP);
+        stars.getDrawable(0).setColorFilter(Color.rgb(48, 48, 48), PorterDuff.Mode.SRC_ATOP);
+        stars.getDrawable(1).setColorFilter(Color.rgb(48, 48, 48), PorterDuff.Mode.SRC_ATOP);
+        stars.getDrawable(2).setColorFilter(Color.rgb(192, 192, 192), PorterDuff.Mode.SRC_ATOP);
     }
 
     @Override
@@ -47,28 +44,5 @@ public class SoundPlayerActivity extends ActionBarActivity {
         bitmapSound.playImage();
 
         ((ImageView) findViewById(R.id.imageView)).setImageBitmap(image);
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_sound_player, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }

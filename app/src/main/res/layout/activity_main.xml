@@ -24,7 +24,9 @@
             android:drawableTop="@drawable/camera"
             android:gravity="center_horizontal"
             android:duplicateParentState="false"
-            android:drawablePadding="-20dp" />
+            android:drawablePadding="-20dp"
+            android:clickable="true"
+            android:onClick="cameraClick" />
 
         <Space
             android:layout_width="20px"
@@ -40,6 +42,7 @@
             android:drawableTop="@drawable/gallery"
             android:onClick="galleryClick"
             android:gravity="center_horizontal"
-            android:drawablePadding="-20dp" />
+            android:drawablePadding="-20dp"
+            android:clickable="true" />
     </LinearLayout>
 </RelativeLayout>
