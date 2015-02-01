@@ -89,6 +89,9 @@ public class BitmapSound {
         int pixel;
 
         for (int l0 = 0; l0 < pixelArray.length; l0++) {
+            if (l0 % REDUCE_BLOCK_WIDTHS[channel] != 0) {
+                continue;
+            }
             MapFn fmap = null;
             RedFn fred = null;
             if (channel == 0) {         // soprano
