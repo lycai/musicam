@@ -1,11 +1,11 @@
 package ca.hicai.musicam;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 public class BitmapSound {
     private static final String TAG = "BitmapSound";
-    private static final int NUM_TRACKS = 2;
-    private static final int NUM_CHANNELS = 3;
+    private static final int NUM_TRACKS = 3;
 
     private int bmpWidth, bmpHeight;
     private int colourVals[];
@@ -99,6 +99,9 @@ public class BitmapSound {
                 }
             }
             diff = (int)Math.round((pixel - 127) / 10.0) + diff;
+            if (diff == -72) {
+                Log.d(TAG, "pixel: " + pixel + "; pa0: " + pixelArray[0]);
+            }
             // prevent static notes
             soundGenerator.addNote(channel, diff, length * blockWidth, 1.0);
         }
@@ -112,13 +115,17 @@ public class BitmapSound {
         // if invalid bitmap, throw some exception
         bmpWidth = bitmap.getWidth();
         bmpHeight = bitmap.getHeight();
+
+        colourVals = new int[bmpWidth * bmpHeight];
+
+        bitmap.setHasAlpha(true);
         bitmap.getPixels(colourVals, 0, bmpWidth, 0, 0, bmpWidth, bmpHeight);
     }
 
     public void playImage(int hScan) {
         parseImg(hScan);
 
-        for (int l0 = 0; l0 < NUM_CHANNELS; l0++) {
+        for (int l0 = 0; l0 < NUM_TRACKS; l0++) {
             synthSounds(l0);
         }
 

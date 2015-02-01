@@ -201,7 +201,7 @@ public class SoundGenerator {
 
     public void addNote(int track, int pitch, int duration, double amplitude) throws IllegalArgumentException {
         if (track < 0 || track >= tracks.length) {
-            throw new IllegalArgumentException("track out of bounds: got " + track + ", expected [0," + tracks.length + "]");
+            throw new IllegalArgumentException("track out of bounds: got " + track + ", expected [0," + tracks.length + ")");
         }
         // We permit all notes on the piano. There are 48 semitones below A4, and 39 above.
         if (pitch < -48 || pitch > 39) {
@@ -213,7 +213,7 @@ public class SoundGenerator {
         if (amplitude < 0 || amplitude > 1) {
             throw new IllegalArgumentException("amplitude out of bounds: got " + amplitude + ", expected [0,1]");
         }
-        Log.d(TAG, "add note to track " + track + "; pitch: " + pitch + "; duration: " + duration + "; amplitude: " + amplitude);
+//        Log.d(TAG, "add note to track " + track + "; pitch: " + pitch + "; duration: " + duration + "; amplitude: " + amplitude);
         tracks[track].addNote(pitch, duration, amplitude);
     }
 

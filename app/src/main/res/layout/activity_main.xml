@@ -20,7 +20,8 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:id="@+id/cameraPane"
-            android:layout_weight="0.5">
+            android:layout_weight="0.5"
+            android:onClick="cameraClick">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -44,7 +45,8 @@
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:id="@+id/galleryPane"
-            android:layout_weight="0.5">
+            android:layout_weight="0.5"
+            android:onClick="galleryClick">
 
             <ImageView
                 android:layout_width="wrap_content"
