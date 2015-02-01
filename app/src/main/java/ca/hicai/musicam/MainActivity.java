@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -28,6 +29,7 @@ public class MainActivity extends ActionBarActivity {
     private static final String TAG = "MainActivity";
 
     public static final String EXTRA_BITMAP = "ca.hicai.musicam.EXTRA.BITMAP";
+    public static final String EXTRA_BITMAP_URI = "ca.hicai.musicam.EXTRA.BITMAP_URI";
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_IMAGE_FROM_GALLERY = 2;
@@ -93,6 +95,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             String filePath = null;
+            Intent soundPlayerIntent = new Intent(this, SoundPlayerActivity.class);
+
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
                 addImageToGallery();
                 filePath = imagePath;
@@ -109,21 +113,27 @@ public class MainActivity extends ActionBarActivity {
                         null, null, null);
                 Log.d(TAG, "count: " + cursor.getCount());
                 cursor.moveToFirst();
-                Log.d(TAG, "columns: " + cursor.getColumnNames());
                 Log.d(TAG, "type: " + cursor.getType(0));
                 filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
                 cursor.close();
+
+                soundPlayerIntent.putExtra(EXTRA_BITMAP_URI, uri);
             }
 
             Log.d(TAG, "filePath: " + filePath);
 
             if (filePath == null) {
-                Toast.makeText(this, "An unknown error occurred.", Toast.LENGTH_LONG);
+                Toast.makeText(this, "An unknown error occurred.", Toast.LENGTH_LONG).show();
             }
 
-            Intent soundPlayerIntent = new Intent(this, SoundPlayerActivity.class);
             soundPlayerIntent.putExtra(EXTRA_BITMAP, filePath);
             startActivity(soundPlayerIntent);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 }
