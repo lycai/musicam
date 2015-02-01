@@ -54,7 +54,8 @@ public class MainActivity extends ActionBarActivity {
         String imageFileName = "musicam_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-        imagePath = "file:" + image.getAbsolutePath();
+        imagePath = image.getAbsolutePath();
+        Log.d(TAG, "created temp file: " + imagePath);
         return image;
     }
     private void addImageToGallery() {
@@ -105,31 +106,34 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            Bitmap image;
-            Uri uri = null;
+            String filePath = null;
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
                 addImageToGallery();
-                uri = Uri.fromFile(new File(imagePath));
+                filePath = imagePath;
             } else if (requestCode == REQUEST_IMAGE_FROM_GALLERY) {
-                uri = data.getData();
+                Uri uri = data.getData();
+                Log.d(TAG, "URI: " + uri);
+
+                if (uri == null) {
+                    Toast.makeText(this, "An unknown error occurred.", Toast.LENGTH_LONG);
+                    return;
+                }
+
+                Cursor cursor = getContentResolver().query(uri, new String[] { MediaStore.Images.Media.DATA },
+                        null, null, null);
+                Log.d(TAG, "count: " + cursor.getCount());
+                cursor.moveToFirst();
+                Log.d(TAG, "columns: " + cursor.getColumnNames());
+                Log.d(TAG, "type: " + cursor.getType(0));
+                filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                cursor.close();
             }
 
-            Log.d(TAG, "URI: " + uri);
-
-            if (uri == null) {
-                Toast.makeText(this, "An unknown error occurred.", Toast.LENGTH_LONG);
-                return;
-            }
-
-            Cursor cursor = getContentResolver().query(uri, new String[] { MediaStore.Images.Media.DATA },
-                    null, null, null);
-            Log.d(TAG, "count: " + cursor.getCount());
-            cursor.moveToFirst();
-            Log.d(TAG, "columns: " + cursor.getColumnNames());
-            Log.d(TAG, "type: " + cursor.getType(0));
-            String filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-            cursor.close();
             Log.d(TAG, "filePath: " + filePath);
+
+            if (filePath == null) {
+                Toast.makeText(this, "An unknown error occurred.", Toast.LENGTH_LONG);
+            }
 
             Intent soundPlayerIntent = new Intent(this, SoundPlayerActivity.class);
             soundPlayerIntent.putExtra(EXTRA_BITMAP, filePath);
