@@ -4,19 +4,21 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 
+import java.util.Random;
 import java.util.concurrent.Callable;
 
 public class BitmapSound {
     private static final String TAG = "BitmapSound";
     private static final int NUM_TRACKS = 3;
-    private static final int PARSE_BLOCK_WIDTH = 15;
     private static final int[] REDUCE_BLOCK_WIDTHS = { 2, 4, 8 };
-    private static final boolean MINOR_KEY = false;
 
     private int bmpWidth, bmpHeight;
     private int colourVals[];
     private int pixelArray[][];
     private SoundGenerator soundGenerator;
+    private int parseBlockWidth;
+    private boolean minorKey = false;
+
 
     private int bindScale(int deltaTones, int offset, boolean isMinor) {
         deltaTones += offset;
@@ -37,7 +39,7 @@ public class BitmapSound {
     }
 
     private int bindScale(int semitone, int offset) {
-        return bindScale(semitone, offset, MINOR_KEY);
+        return bindScale(semitone, offset, minorKey);
     }
 
     private int bindScale(int semitone) {
@@ -48,21 +50,31 @@ public class BitmapSound {
         if (hScan < 0) {
             hScan = bmpHeight / 2;
         }
-        pixelArray = new int[bmpWidth / PARSE_BLOCK_WIDTH][3];
-        for (int l0 = 0; l0 < bmpWidth / PARSE_BLOCK_WIDTH; l0++) {
-            int[] pixel = { 0, 0, 0 }; // note: BGR !!
-            for (int l1 = 0; l1 < PARSE_BLOCK_WIDTH; l1++) {
-                int packed = colourVals[hScan * bmpWidth + l0 * PARSE_BLOCK_WIDTH + l1];
+        int coolness = 0;
+        pixelArray = new int[bmpWidth / parseBlockWidth][3];
+        for (int l0 = 0; l0 < bmpWidth / parseBlockWidth; l0++) {
+            int[] pixel = { 0, 0, 0 };
+            for (int l1 = 0; l1 < parseBlockWidth; l1++) {
+                int packed = colourVals[hScan * bmpWidth + l0 * parseBlockWidth + l1];
                 pixel[0] += Color.red(packed);
                 pixel[1] += Color.green(packed);
                 pixel[2] += Color.blue(packed);
+                if ((Color.blue(packed) - Color.red(packed) > 0x3F) ||
+                        (Color.blue(packed) + Color.red(packed) < 0x3F)) {
+                    coolness += 1;
+                }
             }
-            String log = "colourVals " + l0 + " -";
+//            String log = "colourVals " + l0 + " -";
             for (int l2 = 0; l2 < 3; l2++) {
-                pixelArray[l0][l2] = pixel[l2] / PARSE_BLOCK_WIDTH;
-                log += " " + pixelArray[l0][l2];
+                pixelArray[l0][l2] = pixel[l2] / parseBlockWidth;
+//                log += " " + pixelArray[l0][l2];
             }
-            //Log.d(TAG, log);
+//            Log.d(TAG, log);
+        }
+        // set minor key if cool enough <8D
+        if (coolness >= bmpWidth * 0.45) {
+            minorKey = true;
+            Log.i(TAG, "Minor Key.");
         }
     }
 
@@ -156,8 +168,13 @@ public class BitmapSound {
 
     public void setBitmap(Bitmap bitmap) {
         // if invalid bitmap, throw some exception
+        minorKey = false;
         bmpWidth = bitmap.getWidth();
         bmpHeight = bitmap.getHeight();
+
+        Random rng = new Random(bmpHeight);
+        parseBlockWidth = (int)Math.ceil(bmpWidth / (100.0 + Math.round(200 * rng.nextFloat())));
+        Log.i(TAG, "Bitmap loaded of width: " + bmpWidth + "; Setting block width: " + parseBlockWidth);
 
         colourVals = new int[bmpWidth * bmpHeight];
 
