@@ -45,7 +45,7 @@ public class SoundPlayerActivity extends ActionBarActivity {
 
         BitmapSound bitmapSound = new BitmapSound();
         bitmapSound.setBitmap(image);
-        bitmapSound.playImage(-1);
+        bitmapSound.playImage(0);
 
         ((ImageView) findViewById(R.id.imageView)).setImageBitmap(image);
     }

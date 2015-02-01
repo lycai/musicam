@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SoundGenerator {
     // Number of samples used to fade between tones.
-    private static final int FADE_LEN = 10;
+    private static final int FADE_LEN = 0; //10;
 
     private static interface Note {
         public int getDuration();
