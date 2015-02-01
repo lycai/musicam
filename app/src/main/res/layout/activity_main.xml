@@ -37,7 +37,7 @@
             android:text="@string/select_an_image"
             android:id="@+id/galleryText"
             android:layout_gravity="center_horizontal"
-            android:drawableTop="@drawable/camera"
+            android:drawableTop="@drawable/gallery"
             android:onClick="galleryClick"
             android:gravity="center_horizontal"
             android:drawablePadding="-20dp" />
