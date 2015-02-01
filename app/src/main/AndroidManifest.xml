@@ -24,16 +24,14 @@
         </activity>
         <activity
             android:name=".SoundGeneratorTestActivity"
-            android:label="Test Activity"
-            android:parentActivityName=".MainActivity" >
+            android:label="Test Activity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".SoundPlayerActivity"
-            android:label="@string/title_activity_sound_player"
-            android:parentActivityName=".MainActivity" >
+            android:label="@string/title_activity_sound_player">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ca.hicai.musicam.MainActivity" />

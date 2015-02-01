@@ -7,7 +7,7 @@ import android.util.Log;
 public class BitmapSound {
     private static final String TAG = "BitmapSound";
     private static final int NUM_TRACKS = 3;
-    private static final int PARSE_BLOCK_WIDTH = 5;
+    private static final int PARSE_BLOCK_WIDTH = 15;
     private static final int[] REDUCE_BLOCK_WIDTHS = { 2, 4, 8 };
     private static final boolean MINOR_KEY = false;
 
@@ -60,7 +60,7 @@ public class BitmapSound {
                 pixelArray[l0][l2] = pixel[l2] / PARSE_BLOCK_WIDTH;
                 log += " " + pixelArray[l0][l2];
             }
-            Log.d(TAG, log);
+            //Log.d(TAG, log);
         }
     }
 

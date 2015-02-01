@@ -11,8 +11,10 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -35,8 +37,20 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LinearLayout cameraPane = (LinearLayout) findViewById(R.id.cameraPane);
-        LinearLayout galleryPane = (LinearLayout) findViewById(R.id.galleryPane);
+        ((TextView) findViewById(R.id.cameraText)).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                cameraClick(v);
+                return true;
+            }
+        });
+        ((TextView) findViewById(R.id.galleryText)).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                galleryClick(v);
+                return true;
+            }
+        });
 
         /*galleryPane.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,10 +108,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void galleryClick(View v) {
-        //Intent selectImageIntent = new Intent();
-        //selectImageIntent.setType("image/*");
-        //selectImageIntent.setAction(Intent.ACTION_GET_CONTENT);
-        //startActivityForResult(Intent.createChooser(selectImageIntent, "Select Picture"), REQUEST_IMAGE_FROM_GALLERY);
         startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
             REQUEST_IMAGE_FROM_GALLERY);
     }

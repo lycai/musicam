@@ -34,8 +34,6 @@
             android:enabled="true"
             android:focusable="true"
             android:hint="pitch"
-            android:layout_above="@+id/playbutton"
-            android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
             android:text="0" />
 
@@ -45,8 +43,6 @@
             android:inputType="number"
             android:ems="10"
             android:id="@+id/duration"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
             android:hint="duration"
             android:layout_gravity="center_horizontal"
             android:text="100" />
@@ -72,7 +68,6 @@
                 android:layout_height="wrap_content"
                 android:text="Add Note"
                 android:id="@+id/addButton"
-                android:nestedScrollingEnabled="false"
                 android:onClick="addNote" />
 
             <Space
@@ -84,8 +79,6 @@
                 android:layout_height="wrap_content"
                 android:text="Play"
                 android:id="@+id/playbutton"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
                 android:layout_gravity="center_horizontal"
                 android:onClick="playSong" />
         </LinearLayout>
