@@ -89,7 +89,7 @@ def addEffects(pixelArray, x):
 			diff = -7
 		if (idx % blockWidth != 0):
 			continue
-		p = mapReduce(pixelArray[idx:idx + 2], fmap, fred)
+		p = mapReduce(pixelArray[idx:idx + blockWidth], fmap, fred)
 		length *= blockWidth
 		diff = int(round((p - 127) / 10.0)) + diff
 

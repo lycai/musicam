@@ -7,6 +7,7 @@ public class BitmapSound {
     private static final String TAG = "BitmapSound";
     private static final int NUM_TRACKS = 3;
     private static final int BLOCK_WIDTH = 5;
+    private static final boolean MINOR_KEY = false;
 
     private int bmpWidth, bmpHeight;
     private int colourVals[];
@@ -46,6 +47,32 @@ public class BitmapSound {
         return tot / 3;
     }
 
+    private int bindScale(int deltaTones, int offset, boolean isMinor) {
+        deltaTones += offset;
+        int semitones = 12 * (deltaTones / 7);
+        int remainder = deltaTones % 7;
+        if (remainder < 0) {
+            semitones -= 12;
+            remainder += 7;
+        }
+        semitones += remainder * 2;
+        if (remainder >= (isMinor ? 2 : 3)) {
+            semitones -= 1;
+        }
+        if (isMinor && remainder == 5) {
+            semitones -= 1;
+        }
+        return semitones;
+    }
+
+    private int bindScale(int semitone, int offset) {
+        return bindScale(semitone, offset, MINOR_KEY);
+    }
+
+    private int bindScale(int semitone) {
+        return bindScale(semitone, 0);
+    }
+
     private void parseImg(int hScan) {
         if (hScan < 0) {
             hScan = bmpHeight / 2;
@@ -57,7 +84,7 @@ public class BitmapSound {
                 pixel += colourVals[hScan * bmpWidth + l0 * BLOCK_WIDTH + l1] & 0xFFFFFF;
             }
             pixelArray[l0] = pixel / BLOCK_WIDTH;
-            Log.d(TAG, "colourVals " + (l0) + " - " + ((pixelArray[l0] >> 16) % 256) + ", " + ((pixelArray[l0] >> 8) % 256) + ", " + (pixelArray[l0]) % 256);
+            //Log.d(TAG, "colourVals " + (l0) + " - " + ((pixelArray[l0] >> 16) % 256) + ", " + ((pixelArray[l0] >> 8) % 256) + ", " + (pixelArray[l0]) % 256);
         }
     }
 
@@ -113,7 +140,7 @@ public class BitmapSound {
                 Log.d(TAG, "pixel: " + pixel + "; pa0: " + pixelArray[0] + "; channel: " + channel);
             }
             // prevent static notes
-            soundGenerator.addNote(channel, diff, length * blockWidth, 1.0);
+            soundGenerator.addNote(channel, bindScale(diff), length * blockWidth, 1.0);
         }
     }
 
