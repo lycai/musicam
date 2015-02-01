@@ -1,51 +1,20 @@
 package ca.hicai.musicam;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.util.Log;
 
 public class BitmapSound {
     private static final String TAG = "BitmapSound";
     private static final int NUM_TRACKS = 3;
-    private static final int BLOCK_WIDTH = 5;
+    private static final int PARSE_BLOCK_WIDTH = 5;
+    private static final int[] REDUCE_BLOCK_WIDTHS = { 2, 4, 8 };
     private static final boolean MINOR_KEY = false;
 
     private int bmpWidth, bmpHeight;
     private int colourVals[];
-    private int pixelArray[];
+    private int pixelArray[][];
     private SoundGenerator soundGenerator;
-
-    private int pmax(int pixel) {
-        int max = -1;
-        for (int l0 = 0; l0 < 3; l0++) {
-            int cur = pixel % 256;
-            if (cur > max) {
-                max = cur;
-            }
-            pixel = pixel >> 8;
-        }
-        return max;
-    }
-
-    private int pmin(int pixel) {
-        int min = 257;
-        for (int l0 = 0; l0 < 3; l0++) {
-            int cur = pixel % 256;
-            if (cur < min) {
-                min = cur;
-            }
-            pixel = pixel >> 8;
-        }
-        return min;
-    }
-
-    private int pavg(int pixel) {
-        int tot = 0;
-        for (int l0 = 0; l0 < 3; l0++) {
-            tot += pixel % 256;
-            pixel = pixel >> 8;
-        }
-        return tot / 3;
-    }
 
     private int bindScale(int deltaTones, int offset, boolean isMinor) {
         deltaTones += offset;
@@ -77,70 +46,102 @@ public class BitmapSound {
         if (hScan < 0) {
             hScan = bmpHeight / 2;
         }
-        pixelArray = new int[bmpWidth / BLOCK_WIDTH];
-        for (int l0 = 0; l0 < bmpWidth / BLOCK_WIDTH; l0++) {
-            int pixel = 0;
-            for (int l1 = 0; l1 < BLOCK_WIDTH; l1++) {
-                pixel += colourVals[hScan * bmpWidth + l0 * BLOCK_WIDTH + l1] & 0xFFFFFF;
+        pixelArray = new int[bmpWidth / PARSE_BLOCK_WIDTH][3];
+        for (int l0 = 0; l0 < bmpWidth / PARSE_BLOCK_WIDTH; l0++) {
+            int[] pixel = { 0, 0, 0 }; // note: BGR !!
+            for (int l1 = 0; l1 < PARSE_BLOCK_WIDTH; l1++) {
+                int packed = colourVals[hScan * bmpWidth + l0 * PARSE_BLOCK_WIDTH + l1];
+                pixel[0] += Color.red(packed);
+                pixel[1] += Color.green(packed);
+                pixel[2] += Color.blue(packed);
             }
-            pixelArray[l0] = pixel / BLOCK_WIDTH;
-            //Log.d(TAG, "colourVals " + (l0) + " - " + ((pixelArray[l0] >> 16) % 256) + ", " + ((pixelArray[l0] >> 8) % 256) + ", " + (pixelArray[l0]) % 256);
+            String log = "colourVals " + l0 + " -";
+            for (int l2 = 0; l2 < 3; l2++) {
+                pixelArray[l0][l2] = pixel[l2] / PARSE_BLOCK_WIDTH;
+                log += " " + pixelArray[l0][l2];
+            }
+            Log.d(TAG, log);
         }
+    }
+
+    private interface MapFn {
+        public int map(int[] x);
+    }
+    private interface RedFn {
+        public int reduce(int x, int y);
+    }
+
+    private int mapReduce(int[][] arr, int idx, int num, MapFn map, RedFn reduce) {
+        int ret = 0;
+        for (int i = idx; i <= idx + num && i < arr.length; i++) {
+            if (i == idx) {
+                ret = map.map(arr[i]);
+            } else {
+                ret = reduce.reduce(ret, map.map(arr[idx]));
+            }
+        }
+        return ret;
     }
 
     private void synthSounds(int channel) {
         int diff = 0;
         int length = 7;         // in hundredths of a second
-        int blockWidth = 1;
-        int pixel = 0;
+        int pixel;
 
         for (int l0 = 0; l0 < pixelArray.length; l0++) {
-            if (l0 % blockWidth != 0) {
-                continue;
-            }
+            MapFn fmap = null;
+            RedFn fred = null;
             if (channel == 0) {         // soprano
-                blockWidth = 2;
                 diff = 7;
-                pixel = pmax(pixelArray[l0]);
-                for (int l1 = 1; l1 < blockWidth; l1++) {
-                    if (l0 + l1 >= pixelArray.length) {
-                        break;
+                fmap = new MapFn() {
+                    @Override
+                    public int map(int[] x) {
+                        return Math.max(Math.max(x[0], x[1]), x[2]);
                     }
-                    int tmp = pmax(pixelArray[l0 + l1]);
-                    if (tmp > pixel) {
-                        pixel = tmp;
+                };
+                fred = new RedFn() {
+                    @Override
+                    public int reduce(int x, int y) {
+                        return Math.max(x, y);
                     }
-                }
+                };
             } else if (channel == 1) {  // alto/tenor
-                blockWidth = 4;
                 diff = 0;
-                pixel = pavg(pixelArray[l0]);
-                for (int l1 = 1; l1 < blockWidth; l1++) {
-                    if (l0 + l1 >= pixelArray.length) {
-                        break;
+                fmap = new MapFn() {
+                    @Override
+                    public int map(int[] x) {
+                        return (x[0] + x[1] + x[2]) / 3 / 4;
+                        // divide again by 4 because we can't take average after with M-R
                     }
-                    pixel += pavg(pixelArray[l0 + l1]);
-                }
+                };
+                fred = new RedFn() {
+                    @Override
+                    public int reduce(int x, int y) {
+                        return x + y;
+                    }
+                };
             } else if (channel == 2) {  // bass
-                blockWidth = 8;
                 diff = -7;
-                pixel = pmin(pixelArray[l0]);
-                for (int l1 = 1; l1 < blockWidth; l1++) {
-                    if (l0 + l1 >= pixelArray.length) {
-                        break;
+                fmap = new MapFn() {
+                    @Override
+                    public int map(int[] x) {
+                        return Math.min(Math.min(x[0], x[1]), x[2]);
                     }
-                    int tmp = pmin(pixelArray[l0 + l1]);
-                    if (tmp < pixel) {
-                        pixel = tmp;
+                };
+                fred = new RedFn() {
+                    @Override
+                    public int reduce(int x, int y) {
+                        return Math.min(x, y);
                     }
-                }
+                };
             }
-            diff = (int)Math.round((pixel / blockWidth - 127) / 10.0) + diff;
+            pixel = mapReduce(pixelArray, l0, REDUCE_BLOCK_WIDTHS[channel], fmap, fred);
+            diff = (int)Math.round((pixel / REDUCE_BLOCK_WIDTHS[channel] - 127) / 10.0) + diff;
             if (diff == 54) {
                 Log.d(TAG, "pixel: " + pixel + "; pa0: " + pixelArray[0] + "; channel: " + channel);
             }
             // prevent static notes
-            soundGenerator.addNote(channel, bindScale(diff), length * blockWidth, 1.0);
+            soundGenerator.addNote(channel, bindScale(diff), length * REDUCE_BLOCK_WIDTHS[channel], 1.0);
         }
     }
 
