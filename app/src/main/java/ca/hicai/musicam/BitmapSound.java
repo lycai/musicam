@@ -47,16 +47,17 @@ public class BitmapSound {
 
     private void parseImg(int hScan) {
         int blockWidth = 10;            // number of continuous horizontal pixels to average
-        if (hScan < 0) {
+        if (hScan < 0) {                // blockWidth can't be too high or else you'll overflow!
             hScan = bmpHeight / 2;
         }
         pixelArray = new int[bmpWidth / blockWidth];
         for (int l0 = 0; l0 < bmpWidth / blockWidth; l0++) {
             int pixel = 0;
             for (int l1 = 0; l1 < blockWidth; l1++) {
-                pixel += colourVals[hScan * bmpWidth + l0 + l1];
+                pixel += colourVals[hScan * bmpWidth + l0 + l1] & 0xFFFFFF;
             }
             pixelArray[l0] = pixel / blockWidth;
+            Log.d(TAG, "pixelArray " + l0 + " - " + pixelArray[l0]);
         }
     }
 
@@ -130,5 +131,9 @@ public class BitmapSound {
         }
 
         soundGenerator.play();
+    }
+
+    public void playImage() {
+        playImage(-1);
     }
 }
