@@ -90,7 +90,7 @@ public class SoundGeneratorTestActivity extends ActionBarActivity {
     }
 
     public void playSong(View v) {
-        soundGenerator.play();
+        soundGenerator.play(null);
     }
 
     public void makeSong(View v) {

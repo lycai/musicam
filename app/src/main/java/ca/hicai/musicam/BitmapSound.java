@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 
+import java.util.concurrent.Callable;
+
 public class BitmapSound {
     private static final String TAG = "BitmapSound";
     private static final int NUM_TRACKS = 3;
@@ -163,17 +165,17 @@ public class BitmapSound {
         bitmap.getPixels(colourVals, 0, bmpWidth, 0, 0, bmpWidth, bmpHeight);
     }
 
-    public void playImage(int hScan) {
+    public void playImage(SoundPlayerActivity.Callback callback, int hScan) {
         parseImg(hScan);
 
         for (int l0 = 0; l0 < NUM_TRACKS; l0++) {
             synthSounds(l0);
         }
 
-        soundGenerator.play();
+        soundGenerator.play(callback);
     }
 
-    public void playImage() {
-        playImage(-1);
+    public void playImage(SoundPlayerActivity.Callback callback) {
+        playImage(callback, -1);
     }
 }

@@ -221,12 +221,11 @@ public class SoundGenerator {
         addNote(track, 0, duration, 0);
     }
 
-    public void play(/*final double freq, final int length*/) {
-        //Log.d(TAG, "Playing wave with frequency " + freq + " for " + length + " second(s)");
-
+    public void play(final SoundPlayerActivity.Callback callback) {
         new Thread(new Runnable() {
             final Queue<short[]> buffer = new LinkedList<>();
             AtomicBoolean doneBuffering = new AtomicBoolean(false);
+            int totalDuration = 0;
 
             @Override
             public void run() {
@@ -234,16 +233,12 @@ public class SoundGenerator {
                         AudioFormat.ENCODING_PCM_16BIT);
                 AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO,
                         AudioFormat.ENCODING_PCM_16BIT, bufSize, AudioTrack.MODE_STREAM);
-//                if (audioTrack == null) {
-//                    throw new NullPointerException("failed to create AudioTrack");
-//                }
-
                 final Thread bufferWriter = new Thread() {
                     @Override
                     public synchronized void run() {
                         // First, find the total duration and set up the iterators. The total
                         // duration is equal to the maximum of the total durations of all tracks.
-                        int totalDuration = 0, numTracks = tracks.length;
+                        int numTracks = tracks.length;
                         List<Iterator<Note>> iters = new ArrayList<>(numTracks);
                         for (Track t : tracks) {
                             iters.add(t.iterator());
@@ -316,6 +311,9 @@ public class SoundGenerator {
                             buf = buffer.remove();
                         }
                         written += audioTrack.write(buf, 0, buf.length);
+                        if (callback != null) {
+                            callback.call(written / totalDuration / 441.0);
+                        }
                     }
                     Log.d(TAG, written + " total bytes written to audio buffer");
                     audioTrack.stop();
@@ -323,14 +321,6 @@ public class SoundGenerator {
                 audioTrack.release();
             }
         }).start();
-
-        /*
-        short[] buf = new short[SAMPLE_RATE];
-        for (int i = 0; i < SAMPLE_RATE; i++) {
-            double sample = Math.sin(2 * Math.PI * 440 * i / SAMPLE_RATE);
-            buf[i] = (short) (sample * 32767);
-        }
-        */
     }
 
     public void clear() {
